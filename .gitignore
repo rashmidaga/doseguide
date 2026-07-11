@@ -1,0 +1,6 @@
+# Local dev / OS noise — not needed to host
+.claude/
+.DS_Store
+Thumbs.db
+node_modules/
+*.log
