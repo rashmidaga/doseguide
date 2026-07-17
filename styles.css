@@ -1,5 +1,5 @@
 /* ============================================================
-   DoseGuide — "Porcelain & Evergreen" visual system
+   DoseGuide, "Porcelain & Evergreen" visual system
    Warm ivory light canvas · deep evergreen statement card ·
    glowing adherence ring · Fraunces italic display serif.
    ============================================================ */
@@ -570,13 +570,15 @@ html, body {
 
 /* ---------- toast ---------- */
 .toast {
-  position: fixed; left: 50%; bottom: 138px; transform: translateX(-50%) translateY(14px);
-  background: var(--ink); color: #f4f2ea; padding: 12px 20px; border-radius: 999px;
-  font-size: 13px; font-weight: 600; opacity: 0; pointer-events: none;
-  transition: opacity .25s, transform .25s; z-index: 70; max-width: 86%; text-align: center;
-  box-shadow: 0 16px 40px rgba(28,36,32,.3);
+  position: fixed; left: 50%; bottom: 168px; transform: translateX(-50%) translateY(14px);
+  background: rgba(28,36,32,.78);
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  color: #f4f2ea; padding: 11px 18px; border-radius: 999px;
+  font-size: 12.5px; font-weight: 600; opacity: 0; pointer-events: none;
+  transition: opacity .25s, transform .25s; z-index: 70; max-width: 82%; text-align: center;
+  box-shadow: 0 12px 30px rgba(28,36,32,.22);
 }
-.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.show { opacity: .95; transform: translateX(-50%) translateY(0); }
 
 /* ---------- tab bar (dark floating pill) ---------- */
 .tabbar {
@@ -616,8 +618,10 @@ html, body {
     radial-gradient(90% 50% at -12% 112%, rgba(31,185,176,.08), transparent 60%),
     var(--bg);
   display: flex; flex-direction: column; justify-content: flex-end;
-  padding: 40px 28px 46px;
+  padding: 40px 28px 46px; overflow-y: auto;
 }
+/* bottom-align short steps, but let tall steps scroll from the top */
+.onboard > :first-child { margin-top: auto; }
 .ob-art { flex: 1; display: grid; place-items: center; }
 .ob-mark {
   width: 92px; height: 92px; border-radius: 30px;
@@ -754,3 +758,219 @@ html, body {
 .feed .ic { width: 14px; height: 14px; color: var(--emerald); margin-top: 2px; }
 .feed span { flex: 1; min-width: 0; }
 .feed time { flex: 0 0 auto; font-size: 10.5px; color: var(--faint); font-weight: 600; margin-top: 1px; }
+
+/* ============================================================
+   ADDITIONS: up-next med rows, center-glow tab, support,
+   patient switcher, structured dosage, flags, 2FA, reminders
+   ============================================================ */
+
+/* multiple meds inside the "Up next" focus card */
+.focus-meds { margin-top: 16px; display: flex; flex-direction: column; gap: 9px; position: relative; }
+.focus-med {
+  display: flex; align-items: center; gap: 12px;
+  background: rgba(241,239,230,.08); border: 1px solid rgba(241,239,230,.14);
+  border-radius: 15px; padding: 11px 12px 11px 14px;
+}
+.focus-med-info { flex: 1; min-width: 0; }
+.focus-med-info b { display: block; font-size: 14.5px; font-weight: 600; color: #f6f4ec; letter-spacing: -.01em; }
+.focus-med-info span { display: block; font-size: 11.5px; color: rgba(241,239,230,.6); margin-top: 2px; line-height: 1.4; }
+.focus-take {
+  flex: 0 0 auto; background: var(--grad); color: #052b20;
+  border: 0; border-radius: 999px; padding: 9px 15px;
+  font-family: var(--sans); font-size: 12.5px; font-weight: 700; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px;
+  box-shadow: 0 6px 16px rgba(15,60,45,.4), inset 0 1px 0 rgba(255,255,255,.35);
+  transition: transform .15s;
+}
+.focus-take:active { transform: scale(.95); }
+.focus-take .ic { width: 14px; height: 14px; stroke-width: 2.6; }
+
+/* caregiver overview action row under the focus card */
+.cg-actions { display: flex; gap: 10px; margin: 12px 0 22px; }
+.cg-actions .btn { flex: 1; }
+
+/* patient switcher chips (caregiver, multiple patients) */
+.pt-switch { display: flex; gap: 8px; margin: 0 0 18px; overflow-x: auto; padding-bottom: 2px; }
+.pt-chip {
+  display: inline-flex; align-items: center; gap: 8px; flex: 0 0 auto;
+  background: var(--card); border: 1px solid var(--line); border-radius: 999px;
+  padding: 6px 14px 6px 6px; font-family: var(--sans); font-size: 12.5px; font-weight: 700;
+  color: var(--sub); cursor: pointer; box-shadow: var(--shadow-sm); transition: all .15s;
+}
+.pt-chip .pt-ini {
+  width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--bg-wash); color: var(--sub); font-size: 11px; font-family: var(--serif);
+}
+.pt-chip.on { background: var(--ink); border-color: var(--ink); color: #f4f2ea; }
+.pt-chip.on .pt-ini { background: var(--grad-ink); color: #eef7f2; }
+
+/* Meds page "Add" button beside the masthead */
+.head-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.head-row .masthead { flex: 1; }
+.add-top {
+  flex: 0 0 auto; margin-top: 4px;
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--ever); color: #edf5f0; border: 0; border-radius: 999px;
+  padding: 10px 16px; font-family: var(--sans); font-size: 13px; font-weight: 700; cursor: pointer;
+  box-shadow: 0 8px 20px rgba(14,87,68,.28), inset 0 1px 0 rgba(255,255,255,.15);
+  transition: all .15s;
+}
+.add-top:hover { background: var(--ever-deep); }
+.add-top:active { transform: scale(.97); }
+.add-top .ic { width: 16px; height: 16px; stroke-width: 2.4; }
+
+/* restock flag on med / refill cards */
+.flag {
+  display: inline-block; vertical-align: middle; margin-left: 6px;
+  font-size: 10px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+  color: var(--rose); background: var(--rose-soft); border: 1px solid #ecd4cb;
+  padding: 2px 8px; border-radius: 999px;
+}
+.restock-link {
+  display: block; width: 100%; margin-top: 11px;
+  background: none; border: 1px dashed #ecd4cb; border-radius: 999px;
+  color: var(--rose); font-family: var(--sans); font-size: 12px; font-weight: 700;
+  padding: 8px; cursor: pointer;
+}
+.restock-link:active { transform: scale(.98); }
+
+/* structured dosage: amount + unit */
+.dose-split { display: flex; gap: 8px; }
+.dose-split input { flex: 1; }
+.dose-split select { flex: 0 0 88px; }
+
+/* 2FA lock chip on the profile card */
+.lock-chip {
+  display: inline-flex; align-items: center; gap: 4px; margin-left: 8px;
+  font-size: 9.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--emerald); background: var(--ever-soft); border: 1px solid var(--ever-line);
+  padding: 2px 8px; border-radius: 999px; vertical-align: middle;
+}
+.lock-chip .ic { width: 12px; height: 12px; }
+.otp-modal { margin: 4px 0 20px; }
+.otp-modal .otp-box { width: 52px; height: 60px; font-size: 22px; }
+
+/* reminders on/off row */
+.rem-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.rem-state { display: inline-flex; align-items: center; gap: 9px; font-size: 13px; font-weight: 700; color: var(--emerald); }
+.rem-row .btn { flex: 0 0 auto; }
+.dot-on {
+  width: 9px; height: 9px; border-radius: 50%; background: var(--emerald);
+  box-shadow: 0 0 0 4px rgba(14,122,90,.14);
+}
+
+/* center-glow home tab + support tab */
+.tab-home { flex: 0 0 auto; margin: 0 4px; position: relative; gap: 4px; }
+.home-glow {
+  background: var(--grad); color: #052b20;
+  width: 47px; height: 47px; border-radius: 50%;
+  display: grid; place-items: center;
+  box-shadow: 0 8px 24px rgba(47,211,154,.4), inset 0 1px 0 rgba(255,255,255,.4);
+  transition: transform .15s;
+}
+.tab-home:active .home-glow { transform: scale(.92); }
+.home-glow .ic { width: 22px; height: 22px; stroke-width: 2.2; color: #052b20; }
+.home-lbl { font-size: 9px; font-weight: 700; letter-spacing: .06em; color: rgba(244,242,234,.55); }
+.tab-home.is-active .home-lbl { color: var(--em); }
+
+/* emergency 911 button on the Support tab */
+.sos-911 { margin-bottom: 12px; }
+.sos-911 {
+  animation: sosGlow 2.4s ease-in-out infinite;
+}
+@keyframes sosGlow {
+  0%, 100% { box-shadow: 0 14px 32px rgba(178,68,47,.32), inset 0 1px 0 rgba(255,255,255,.25); }
+  50% { box-shadow: 0 14px 40px rgba(178,68,47,.55), 0 0 0 4px rgba(178,68,47,.12), inset 0 1px 0 rgba(255,255,255,.25); }
+}
+
+/* onboarding: splash + wordmark + linking */
+.ob-brand {
+  font-family: var(--serif); font-size: 17px; font-weight: 600; letter-spacing: -.01em;
+  color: var(--emerald); margin-bottom: 20px;
+}
+.ob-splash {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 16px; cursor: pointer; animation: fade .4s both;
+}
+.ob-mark-lg {
+  width: 104px; height: 104px; font-size: 48px; border-radius: 34px;
+  animation: splashPop .7s cubic-bezier(.22,.9,.3,1) both;
+}
+@keyframes splashPop { from { opacity: 0; transform: scale(.82); } to { opacity: 1; transform: none; } }
+.ob-splash-name {
+  font-family: var(--serif); font-size: 30px; font-weight: 600; letter-spacing: -.01em; color: var(--ink);
+  animation: rise .6s .12s cubic-bezier(.22,.9,.3,1) both;
+}
+.ob-splash-tag {
+  font-size: 13px; color: var(--sub); letter-spacing: .01em;
+  animation: rise .6s .2s cubic-bezier(.22,.9,.3,1) both;
+}
+.link-status {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--r);
+  padding: 15px 16px; font-size: 13px; font-weight: 600; color: var(--sub);
+  box-shadow: var(--shadow-sm);
+}
+.link-status.done { color: var(--emerald); border-color: var(--ever-line); background: var(--ever-soft); }
+.link-status .ic { width: 18px; height: 18px; color: var(--emerald); }
+.spin {
+  width: 16px; height: 16px; flex: 0 0 auto; border-radius: 50%;
+  border: 2px solid var(--line); border-top-color: var(--emerald);
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* refills tab low-stock alert dot */
+.tab { position: relative; }
+.tab-dot {
+  position: absolute; top: 2px; left: 50%; margin-left: 4px;
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--rose); border: 1.5px solid rgba(24,31,27,.95);
+  box-shadow: 0 0 0 0 rgba(178,68,47,.5); animation: dotPulse 2s ease-out infinite;
+}
+@keyframes dotPulse {
+  0% { box-shadow: 0 0 0 0 rgba(178,68,47,.55); }
+  70% { box-shadow: 0 0 0 6px rgba(178,68,47,0); }
+  100% { box-shadow: 0 0 0 0 rgba(178,68,47,0); }
+}
+
+/* selectable emergency caregiver row */
+.cg-row { cursor: pointer; transition: border-color .15s, background .15s; }
+.cg-row:hover { border-color: var(--faint); }
+.cg-row.sos-selected { border-color: #ecd4cb; background: var(--rose-soft); }
+.sos-tag {
+  display: inline-flex; align-items: center; gap: 5px; flex: 0 0 auto;
+  font-size: 10px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+  color: var(--rose); background: #fff; border: 1px solid #ecd4cb;
+  padding: 4px 9px; border-radius: 999px;
+}
+.sos-tag .ic { width: 12px; height: 12px; }
+
+/* onboarding people-you-care-for list */
+.ob-people { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
+.ob-people .care-person { margin-bottom: 0; }
+.ob-addrow { display: flex; gap: 8px; }
+.ob-addrow input {
+  flex: 1; min-width: 0; padding: 12px 13px; font-size: 14px;
+  border: 1px solid var(--line); border-radius: var(--r-sm);
+  font-family: var(--sans); background: var(--card); color: var(--ink); box-shadow: var(--shadow-sm);
+}
+.ob-addrow input:focus { outline: none; border-color: var(--emerald); box-shadow: 0 0 0 3px rgba(14,122,90,.12); }
+.ob-addrow button {
+  flex: 0 0 auto; background: var(--ink); color: #f4f2ea; border: 0;
+  border-radius: var(--r-sm); padding: 0 18px; font-weight: 700; font-size: 13px;
+  cursor: pointer; font-family: var(--sans);
+}
+
+/* share-summary channel picker */
+.share-opts { display: flex; gap: 10px; margin: 4px 0 8px; }
+.share-opt {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px;
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--r);
+  padding: 16px 8px; cursor: pointer; font-family: var(--sans);
+  font-size: 12.5px; font-weight: 600; color: var(--ink);
+  box-shadow: var(--shadow-sm); transition: all .15s;
+}
+.share-opt .ic { width: 22px; height: 22px; color: var(--emerald); }
+.share-opt:hover { border-color: var(--emerald); background: var(--ever-soft); }
+.share-opt:active { transform: scale(.96); }
