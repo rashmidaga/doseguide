@@ -1621,31 +1621,36 @@
 
   /* patient setup */
   function obPatientSetup() {
+    /* a registered account already has a name, so never ask for it again */
     var kn = knownName(obPhoneNum);
+    if (kn) { finishPatient(kn, true); return; }
     onboard.innerHTML =
       obBrand() +
-      '<h1 class="ob-title">' + (kn ? "Good to see<br><em>you, " + esc(kn.split(" ")[0]) + ".</em>" : "Let’s make it<br><em>effortless.</em>") + "</h1>" +
-      '<p class="ob-sub">' + (kn ? "Signed in as " + esc(kn) + ". A sample cabinet is loaded so you can explore right away." : "A sample cabinet is loaded so you can explore right away.") + "</p>" +
-      '<div class="field"><label>Your first name</label><input id="ob-name" placeholder="e.g. Emily" autocomplete="given-name" value="' + esc(kn || "") + '"></div>' +
+      '<h1 class="ob-title">Let’s make it<br><em>effortless.</em></h1>' +
+      '<p class="ob-sub">A sample cabinet is loaded so you can explore right away.</p>' +
+      '<div class="field"><label>Your first name</label><input id="ob-name" placeholder="e.g. Emily" autocomplete="given-name"></div>' +
       '<button class="btn-primary" id="ob-go">Begin</button>' +
       '<button class="ob-back" id="ob-back">← Back</button>';
     document.getElementById("ob-back").onclick = obStep1;
     document.getElementById("ob-go").onclick = function () {
-      var name = document.getElementById("ob-name").value.trim();
-      state.user = { name: name || "", role: "patient", patient: "", phone: obPhoneNum };
-      save(KEYS.user, state.user);
-      if (!state.caregivers || !state.caregivers.length) {
-        state.caregivers = [
-          { name: "Jacob Daga", relation: "Son", phone: "555-0142", kind: "Primary" },
-          { name: "Priya Nair", relation: "Neighbor", phone: "555-0163", kind: "Secondary" }
-        ];
-      }
-      state.contact = state.caregivers[0];
-      persist();
-      onboard.hidden = true; onboard.innerHTML = "";
-      renderTabbar(); render();
-      toast(name ? "Welcome, " + name.split(" ")[0] : "Welcome to DoseGuide");
+      finishPatient(document.getElementById("ob-name").value.trim(), false);
     };
+  }
+  function finishPatient(name, returning) {
+    state.user = { name: name || "", role: "patient", patient: "", phone: obPhoneNum };
+    save(KEYS.user, state.user);
+    if (!state.caregivers || !state.caregivers.length) {
+      state.caregivers = [
+        { name: "Jacob Daga", relation: "Son", phone: "555-0142", kind: "Primary" },
+        { name: "Priya Nair", relation: "Neighbor", phone: "555-0163", kind: "Secondary" }
+      ];
+    }
+    state.contact = state.caregivers[0];
+    persist();
+    onboard.hidden = true; onboard.innerHTML = "";
+    renderTabbar(); render();
+    var first = name ? name.split(" ")[0] : "";
+    toast(first ? (returning ? "Welcome back, " + first : "Welcome, " + first) : "Welcome to DoseGuide");
   }
 
   /* caregiver setup: manage the people you care for, then continue */
@@ -1659,6 +1664,11 @@
     if (!obCgName) obCgName = knownName(obPhoneNum) || "";
     renderCarePeople();
   }
+  /* the name field is hidden for registered accounts, so read it safely */
+  function cgNameVal() {
+    var e = document.getElementById("ob-name");
+    return e ? e.value.trim() : obCgName;
+  }
   function renderCarePeople() {
     var rows = obPeople.map(function (p, i) {
       return '<div class="care-person"><div class="avatar">' + esc(initialsOf(p.name)) + "</div>" +
@@ -1668,11 +1678,14 @@
         (obPeople.length > 1 ? '<button class="mini-btn danger" data-rm="' + i + '" title="Remove">×</button>' : "") +
         "</div>";
     }).join("");
+    /* a registered account already has a name, so never ask for it again */
+    var kn = knownName(obPhoneNum);
     onboard.innerHTML =
       obBrand() +
       '<h1 class="ob-title">People you<br><em>care for.</em></h1>' +
-      '<p class="ob-sub">These accounts are linked to you. Add anyone else, then continue.</p>' +
-      '<div class="field"><label>Your first name</label><input id="ob-name" placeholder="e.g. Jacob" autocomplete="given-name" value="' + esc(obCgName) + '"></div>' +
+      '<p class="ob-sub">' + (kn ? "Signed in as " + esc(kn) + ". These accounts are linked to you." : "These accounts are linked to you.") +
+        " Add anyone else, then continue.</p>" +
+      (kn ? "" : '<div class="field"><label>Your first name</label><input id="ob-name" placeholder="e.g. Jacob" autocomplete="given-name" value="' + esc(obCgName) + '"></div>') +
       '<div class="ob-people">' + rows + "</div>" +
       '<div class="ob-addrow"><input id="ob-add-phone" type="tel" placeholder="Phone number"><input id="ob-add-name" placeholder="Name"><button id="ob-add">Add</button></div>' +
       '<div class="hint" style="margin:8px 0 2px">Enter a phone number. If it is a registered account we pull the name for you.</div>' +
@@ -1680,7 +1693,7 @@
       '<button class="ob-back" id="ob-back">← Back</button>';
     document.getElementById("ob-back").onclick = obStep1;
     document.getElementById("ob-add").onclick = function () {
-      obCgName = document.getElementById("ob-name").value.trim();
+      obCgName = cgNameVal();
       var n = document.getElementById("ob-add-name").value.trim();
       var ph = document.getElementById("ob-add-phone").value.trim();
       if (!ph) { toast("Add their phone number"); return; }
@@ -1697,7 +1710,7 @@
       b.onclick = function () {
         var idx = +b.getAttribute("data-rm");
         var nm = obPeople[idx] ? obPeople[idx].name : "this person";
-        obCgName = document.getElementById("ob-name").value.trim();
+        obCgName = cgNameVal();
         openModal("<h3>Remove " + esc(nm) + "?</h3><p>They will be unlinked from your account.</p>" +
           '<div class="modal-actions"><button class="btn btn-quiet" id="m-cancel">Keep</button>' +
           '<button class="btn btn-take m-danger" id="m-ok">Remove</button></div>');
@@ -1706,7 +1719,7 @@
       };
     });
     document.getElementById("ob-go").onclick = function () {
-      finishCaregiver(document.getElementById("ob-name").value.trim());
+      finishCaregiver(cgNameVal() || knownName(obPhoneNum) || "");
     };
   }
   function finishCaregiver(name) {
