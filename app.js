@@ -1544,7 +1544,7 @@
       '<p class="ob-sub">Sign in with your phone number. Your schedule stays yours, on your device.</p>' +
       '<div class="field"><label>Phone number</label><input id="ob-phone" type="tel" inputmode="tel" placeholder="(555) 014-2000" value="' + esc(obPhoneNum) + '" autocomplete="tel"></div>' +
       '<button class="btn-primary" id="ob-send">Send verification code</button>' +
-      '<p class="hint" style="text-align:center;margin-top:12px">Demo build: enter any 10 digits.</p>';
+      '<p class="hint" style="text-align:center;margin-top:12px">Demo build: enter any 10 digits, or the registered account <b>0000000000</b> to sign in as Rashmi.</p>';
     var input = document.getElementById("ob-phone");
     function send() {
       var v = input.value.trim();
@@ -1560,10 +1560,11 @@
 
   /* --- step 0b: OTP verification (demo code 0000) --- */
   function obOtp() {
+    var kn = knownName(obPhoneNum);
     onboard.innerHTML =
       obBrand() +
-      '<h1 class="ob-title">Enter your<br><em>code.</em></h1>' +
-      '<p class="ob-sub">We texted a 4-digit code to <b>' + esc(obPhoneNum) + '</b>.<br>Demo build: the code is <b>0000</b>.</p>' +
+      '<h1 class="ob-title">' + (kn ? "Welcome back,<br><em>" + esc(kn.split(" ")[0]) + ".</em>" : "Enter your<br><em>code.</em>") + "</h1>" +
+      '<p class="ob-sub">' + (kn ? "We recognized your number. " : "") + "We texted a 4-digit code to <b>" + esc(obPhoneNum) + "</b>.<br>Demo build: the code is <b>0000</b>.</p>" +
       '<div class="otp-row">' +
         '<input class="otp-box" maxlength="1" inputmode="numeric" autocomplete="one-time-code">' +
         '<input class="otp-box" maxlength="1" inputmode="numeric">' +
@@ -1601,10 +1602,11 @@
     boxes[0].focus();
   }
   function obStep1() {
+    var kn = knownName(obPhoneNum);
     onboard.innerHTML =
       obBrand() +
-      '<h1 class="ob-title">One calm<br><em>place.</em></h1>' +
-      '<p class="ob-sub">Medication schedules, supply and caregivers, all together. First, who are you?</p>' +
+      '<h1 class="ob-title">' + (kn ? "Hello again,<br><em>" + esc(kn.split(" ")[0]) + ".</em>" : "One calm<br><em>place.</em>") + "</h1>" +
+      '<p class="ob-sub">' + (kn ? "Signed in as " + esc(kn) + ". How are you using DoseGuide today?" : "Medication schedules, supply and caregivers, all together. First, who are you?") + "</p>" +
       '<div class="role-cards">' +
         '<button class="role-card" id="ob-patient">' +
           '<span class="role-ico">' + ic("user") + "</span>" +
@@ -1619,11 +1621,12 @@
 
   /* patient setup */
   function obPatientSetup() {
+    var kn = knownName(obPhoneNum);
     onboard.innerHTML =
       obBrand() +
-      '<h1 class="ob-title">Let’s make it<br><em>effortless.</em></h1>' +
-      '<p class="ob-sub">A sample cabinet is loaded so you can explore right away.</p>' +
-      '<div class="field"><label>Your first name</label><input id="ob-name" placeholder="e.g. Emily" autocomplete="given-name"></div>' +
+      '<h1 class="ob-title">' + (kn ? "Good to see<br><em>you, " + esc(kn.split(" ")[0]) + ".</em>" : "Let’s make it<br><em>effortless.</em>") + "</h1>" +
+      '<p class="ob-sub">' + (kn ? "Signed in as " + esc(kn) + ". A sample cabinet is loaded so you can explore right away." : "A sample cabinet is loaded so you can explore right away.") + "</p>" +
+      '<div class="field"><label>Your first name</label><input id="ob-name" placeholder="e.g. Emily" autocomplete="given-name" value="' + esc(kn || "") + '"></div>' +
       '<button class="btn-primary" id="ob-go">Begin</button>' +
       '<button class="ob-back" id="ob-back">← Back</button>';
     document.getElementById("ob-back").onclick = obStep1;
@@ -1653,6 +1656,7 @@
       { kind: "emily", name: "Emily Parker", phone: "555-0117", relation: "Mother" },
       { kind: "robert", name: "Robert Hayes", phone: "555-0182", relation: "Father" }
     ];
+    if (!obCgName) obCgName = knownName(obPhoneNum) || "";
     renderCarePeople();
   }
   function renderCarePeople() {
